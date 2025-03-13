@@ -58,11 +58,10 @@ def dashboard():
 def create_roadmap():
     if request.method == "POST":
         name = request.form.get("name")
-        email = request.form.get("email")
         interests = request.form.getlist("interests")
         timeframe = request.form.get("timeframe")
 
-        if not all([name, email, interests, timeframe]):
+        if not all([name, interests, timeframe]):
             flash("All fields are required", "error")
             return redirect(url_for("views.create_roadmap"))
 
@@ -72,7 +71,7 @@ def create_roadmap():
             flash("Timeframe must be a number", "error")
             return redirect(url_for("views.create_roadmap"))
 
-        data = {"name": name, "email": email, "interests": interests, "timeframe": timeframe}
+        data = {"name": name, "interests": interests, "timeframe": timeframe}
 
         try:
             response = api_request("post", "create", data)

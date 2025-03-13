@@ -39,13 +39,13 @@ class TestPublicEndpoints:
 
 class TestTimeroadmapCreation:
 
-    def test_create_time_roadmap_success(self, client, sample_time_roadmap_data):
+    def test_create_time_roadmap_success(self, client, sample_roadmap_data):
         custom_key = "custom-test-key"
         with patch.dict(os.environ, {"API_KEY": custom_key}):
             response = client.post(
                 "/create",
                 headers={"X-API-Key": custom_key, "Content-Type": "application/json"},
-                data=json.dumps(sample_time_roadmap_data),
+                data=json.dumps(sample_roadmap_data),
             )
             data = json.loads(response.data)
 
@@ -53,8 +53,8 @@ class TestTimeroadmapCreation:
             assert "roadmap_id" in data
             assert "message" in data
             assert "summary" in data
-            assert data["summary"]["name"] == sample_time_roadmap_data["name"]
-            assert data["summary"]["timeframe"] == f"{sample_time_roadmap_data['timeframe']} months"
+            assert data["summary"]["name"] == sample_roadmap_data["name"]
+            assert data["summary"]["timeframe"] == f"{sample_roadmap_data['timeframe']} months"
             roadmap_id = data["roadmap_id"]
             assert roadmap_id in ROADMAPS_DB
 
@@ -67,7 +67,6 @@ class TestTimeroadmapCreation:
                 data=json.dumps(
                     {
                         "name": "Test User",
-                        # Missing email, interests, timeframe
                     }
                 ),
             )
@@ -77,10 +76,10 @@ class TestTimeroadmapCreation:
             assert "error" in data
             assert "required_fields" in data
 
-    def test_create_time_roadmap_invalid_interests(self, client, sample_time_roadmap_data):
+    def test_create_time_roadmap_invalid_interests(self, client, sample_roadmap_data):
         custom_key = "custom-test-key"
         with patch.dict(os.environ, {"API_KEY": custom_key}):
-            invalid_data = sample_time_roadmap_data.copy()
+            invalid_data = sample_roadmap_data.copy()
             invalid_data["interests"] = ["invalid_path", "frontend"]
 
             response = client.post(
@@ -94,11 +93,11 @@ class TestTimeroadmapCreation:
             assert "error" in data
             assert "available_paths" in data
 
-    def test_create_time_roadmap_invalid_timeframe(self, client, sample_time_roadmap_data):
+    def test_create_time_roadmap_invalid_timeframe(self, client, sample_roadmap_data):
         custom_key = "custom-test-key"
         with patch.dict(os.environ, {"API_KEY": custom_key}):
             # Test negative timeframe
-            negative_data = sample_time_roadmap_data.copy()
+            negative_data = sample_roadmap_data.copy()
             negative_data["timeframe"] = -1
 
             response1 = client.post(
@@ -108,7 +107,7 @@ class TestTimeroadmapCreation:
             )
 
             # Test too large timeframe
-            large_data = sample_time_roadmap_data.copy()
+            large_data = sample_roadmap_data.copy()
             large_data["timeframe"] = 30
 
             response2 = client.post(
@@ -118,7 +117,7 @@ class TestTimeroadmapCreation:
             )
 
             # Test non-numeric timeframe
-            string_data = sample_time_roadmap_data.copy()
+            string_data = sample_roadmap_data.copy()
             string_data["timeframe"] = "six"
 
             response3 = client.post(
@@ -133,13 +132,13 @@ class TestTimeroadmapCreation:
 
 
 class TestTimeroadmapRetrieval:
-    def test_get_time_roadmap(self, client, sample_time_roadmap_data):
+    def test_get_time_roadmap(self, client, sample_roadmap_data):
         custom_key = "custom-test-key"
         with patch.dict(os.environ, {"API_KEY": custom_key}):
             create_response = client.post(
                 "/create",
                 headers={"X-API-Key": custom_key, "Content-Type": "application/json"},
-                data=json.dumps(sample_time_roadmap_data),
+                data=json.dumps(sample_roadmap_data),
             )
             create_data = json.loads(create_response.data)
             roadmap_id = create_data["roadmap_id"]
@@ -150,8 +149,7 @@ class TestTimeroadmapRetrieval:
 
             assert response.status_code == 200
             assert data["id"] == roadmap_id
-            assert data["name"] == sample_time_roadmap_data["name"]
-            assert data["email"] == sample_time_roadmap_data["email"]
+            assert data["name"] == sample_roadmap_data["name"]
             assert "roadmap" in data
             assert len(data["roadmap"]) > 0
 
@@ -166,13 +164,13 @@ class TestTimeroadmapRetrieval:
 
 
 class TestMilestoneUpdates:
-    def test_update_milestone(self, client, sample_time_roadmap_data):
+    def test_update_milestone(self, client, sample_roadmap_data):
         custom_key = "custom-test-key"
         with patch.dict(os.environ, {"API_KEY": custom_key}):
             create_response = client.post(
                 "/create",
                 headers={"X-API-Key": custom_key, "Content-Type": "application/json"},
-                data=json.dumps(sample_time_roadmap_data),
+                data=json.dumps(sample_roadmap_data),
             )
             create_data = json.loads(create_response.data)
             roadmap_id = create_data["roadmap_id"]
@@ -195,13 +193,13 @@ class TestMilestoneUpdates:
             # Verify the update in the database
             assert ROADMAPS_DB[roadmap_id]["roadmap"][0]["completed"] is True
 
-    def test_update_invalid_milestone_index(self, client, sample_time_roadmap_data):
+    def test_update_invalid_milestone_index(self, client, sample_roadmap_data):
         custom_key = "custom-test-key"
         with patch.dict(os.environ, {"API_KEY": custom_key}):
             create_response = client.post(
                 "/create",
                 headers={"X-API-Key": custom_key, "Content-Type": "application/json"},
-                data=json.dumps(sample_time_roadmap_data),
+                data=json.dumps(sample_roadmap_data),
             )
             create_data = json.loads(create_response.data)
             roadmap_id = create_data["roadmap_id"]
@@ -223,13 +221,13 @@ class TestMilestoneUpdates:
             assert response1.status_code == 404
             assert response2.status_code == 400
 
-    def test_update_milestone_missing_field(self, client, sample_time_roadmap_data):
+    def test_update_milestone_missing_field(self, client, sample_roadmap_data):
         custom_key = "custom-test-key"
         with patch.dict(os.environ, {"API_KEY": custom_key}):
             create_response = client.post(
                 "/create",
                 headers={"X-API-Key": custom_key, "Content-Type": "application/json"},
-                data=json.dumps(sample_time_roadmap_data),
+                data=json.dumps(sample_roadmap_data),
             )
             create_data = json.loads(create_response.data)
             roadmap_id = create_data["roadmap_id"]

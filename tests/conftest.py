@@ -17,4 +17,4 @@ def client():
 
 @pytest.fixture
 def sample_roadmap_data():
-    return {"name": "Test User", "email": "test@example.com", "interests": ["frontend", "backend"], "timeframe": 6}
+    return {"name": "Test User", "interests": ["frontend", "backend"], "timeframe": 6}

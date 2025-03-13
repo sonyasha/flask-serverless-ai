@@ -29,7 +29,7 @@ def home():
                 {"path": "/quote", "method": "GET", "description": "Get a random inspirational quote"},
                 {"path": "/paths", "method": "GET", "description": "List available development paths"},
             ],
-            "usage": "Send a POST request to /create with name, email, interests (array), and timeframe (months)",
+            "usage": "Send a POST request to /create with name, interests (array), and timeframe (months)",
         }
     )
 
@@ -55,7 +55,7 @@ def create_roadmap():
     data = request.json
 
     # Validate required fields
-    required_fields = ["name", "email", "interests", "timeframe"]
+    required_fields = ["name", "interests", "timeframe"]
     if not all(field in data for field in required_fields):
         return jsonify({"error": "Missing required fields", "required_fields": required_fields}), 400
 
@@ -108,7 +108,6 @@ def create_roadmap():
     time_roadmap = {
         "id": roadmap_id,
         "name": data["name"],
-        "email": data["email"],
         "interests": interests,
         "timeframe": timeframe,
         "created_at": start_date.strftime("%Y-%m-%d"),
