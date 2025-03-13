@@ -1,11 +1,11 @@
 {% extends "base.html" %}
 
-{% block title %}Developer Time Capsule - Home{% endblock %}
+{% block title %}Developer Roadmap - Home{% endblock %}
 
 {% block content %}
 <div class="header-container">
     <div class="container">
-        <h1 class="display-4">Developer Time Capsule</h1>
+        <h1 class="display-4">Developer Roadmap</h1>
         <p class="lead">Create a personalized roadmap for your coding journey</p>
     </div>
 </div>
@@ -14,7 +14,7 @@
     <div class="row">
         <div class="col-md-8">
             <h2>Map Your Development Journey</h2>
-            <p>Developer Time Capsule helps you create structured learning paths with realistic timelines, 
+            <p>Developer Roadmap helps you create structured learning paths with realistic timelines, 
                resources, and tips tailored to your interests.</p>
             
             <div class="quote-box">
@@ -32,7 +32,7 @@
             </ul>
             
             <div class="d-grid gap-2 d-md-flex justify-content-md-start mt-4">
-                <a href="{{ url_for('views.create_capsule') }}" class="btn btn-primary me-md-2">Create Your Time Capsule</a>
+                <a href="{{ url_for('views.create_roadmap') }}" class="btn btn-primary me-md-2">Create Your Roadmap</a>
                 <a href="{{ url_for('views.dashboard') }}" class="btn btn-outline-secondary">View Dashboard</a>
             </div>
         </div>

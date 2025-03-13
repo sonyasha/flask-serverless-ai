@@ -39,23 +39,23 @@ def dashboard():
     paths_response = requests.get(f"http://{request.host}/paths")
     paths = paths_response.json()["available_paths"] if paths_response.ok else []
 
-    user_capsules = session.get("user_capsules", [])
-    capsules_data = []
+    user_roadmaps = session.get("user_roadmaps", [])
+    roadmaps_data = []
 
-    for capsule_id in user_capsules:
+    for roadmap_id in user_roadmaps:
         try:
-            response = api_request("get", f"capsule/{capsule_id}")
+            response = api_request("get", f"roadmap/{roadmap_id}")
             if response.ok:
-                capsules_data.append(response.json())
+                roadmaps_data.append(response.json())
         except Exception:
             # Log the error in a production app
             pass
 
-    return render_template("dashboard.html", quote=quote, paths=paths, capsules=capsules_data)
+    return render_template("dashboard.html", quote=quote, paths=paths, roadmaps=roadmaps_data)
 
 
-@bp.route("/create-capsule", methods=["GET", "POST"])
-def create_capsule():
+@bp.route("/create-roadmap", methods=["GET", "POST"])
+def create_roadmap():
     if request.method == "POST":
         name = request.form.get("name")
         email = request.form.get("email")
@@ -64,13 +64,13 @@ def create_capsule():
 
         if not all([name, email, interests, timeframe]):
             flash("All fields are required", "error")
-            return redirect(url_for("views.create_capsule"))
+            return redirect(url_for("views.create_roadmap"))
 
         try:
             timeframe = int(timeframe)
         except ValueError:
             flash("Timeframe must be a number", "error")
-            return redirect(url_for("views.create_capsule"))
+            return redirect(url_for("views.create_roadmap"))
 
         data = {"name": name, "email": email, "interests": interests, "timeframe": timeframe}
 
@@ -79,50 +79,50 @@ def create_capsule():
 
             if response.ok:
                 response_data = response.json()
-                capsule_id = response_data.get("capsule_id")
+                roadmap_id = response_data.get("roadmap_id")
 
-                user_capsules = session.get("user_capsules", [])
-                user_capsules.append(capsule_id)
-                session["user_capsules"] = user_capsules
+                user_roadmaps = session.get("user_roadmaps", [])
+                user_roadmaps.append(roadmap_id)
+                session["user_roadmaps"] = user_roadmaps
 
-                flash("Time capsule created successfully!", "success")
-                return redirect(url_for("views.view_capsule", capsule_id=capsule_id))
+                flash("Roadmap created successfully!", "success")
+                return redirect(url_for("views.view_roadmap", roadmap_id=roadmap_id))
             else:
                 error_data = response.json()
                 flash(f"Error: {error_data.get('error', 'Unknown error')}", "error")
         except Exception as e:
             flash(f"An error occurred: {str(e)}", "error")
 
-        return redirect(url_for("views.create_capsule"))
+        return redirect(url_for("views.create_roadmap"))
 
     paths_response = requests.get(f"http://{request.host}/paths")
     paths = paths_response.json()["available_paths"] if paths_response.ok else []
 
-    return render_template("create_capsule.html", paths=paths)
+    return render_template("create_roadmap.html", paths=paths)
 
 
-@bp.route("/capsules/<capsule_id>", methods=["GET"])
-def view_capsule(capsule_id):
+@bp.route("/roadmaps/<roadmap_id>", methods=["GET"])
+def view_roadmap(roadmap_id):
     try:
-        response = api_request("get", f"capsule/{capsule_id}")
+        response = api_request("get", f"roadmap/{roadmap_id}")
 
         if response.ok:
-            capsule_data = response.json()
-            return render_template("view_capsule.html", capsule=capsule_data)
+            roadmap_data = response.json()
+            return render_template("view_roadmap.html", roadmap=roadmap_data)
         else:
-            flash("Time capsule not found", "error")
+            flash("Roadmap not found", "error")
             return redirect(url_for("views.dashboard"))
     except Exception as e:
         flash(f"An error occurred: {str(e)}", "error")
         return redirect(url_for("views.dashboard"))
 
 
-@bp.route("/capsules/<capsule_id>/update-milestone/<int:milestone_index>", methods=["POST"])
-def update_milestone(capsule_id, milestone_index):
+@bp.route("/roadmaps/<roadmap_id>/update-milestone/<int:milestone_index>", methods=["POST"])
+def update_milestone(roadmap_id, milestone_index):
     completed = request.form.get("completed") == "true"
 
     try:
-        response = api_request("put", f"capsule/{capsule_id}/milestone/{milestone_index}", {"completed": completed})
+        response = api_request("put", f"roadmap/{roadmap_id}/milestone/{milestone_index}", {"completed": completed})
 
         if response.ok:
             flash("Milestone updated successfully", "success")
@@ -132,7 +132,7 @@ def update_milestone(capsule_id, milestone_index):
     except Exception as e:
         flash(f"An error occurred: {str(e)}", "error")
 
-    return redirect(url_for("views.view_capsule", capsule_id=capsule_id))
+    return redirect(url_for("views.view_roadmap", roadmap_id=roadmap_id))
 
 
 # Redirect root to home page

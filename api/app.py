@@ -14,7 +14,7 @@ app.secret_key = os.environ.get("SECRET_KEY", "dev-secret-key")
 app.register_blueprint(views_bp)
 
 # Simulated database
-TIME_CAPSULES_DB = {}
+ROADMAPS_DB = {}
 
 # Development paths with associated resources, milestones and tips
 DEV_PATHS = {
@@ -169,11 +169,11 @@ QUOTES = [
 def home():
     return jsonify(
         {
-            "service": "Developer Time Capsule API",
+            "service": "Developer Roadmap API",
             "version": "1.0.0",
             "endpoints": [
-                {"path": "/create", "method": "POST", "description": "Create a new time capsule roadmap"},
-                {"path": "/capsule/<capsule_id>", "method": "GET", "description": "Retrieve a specific time capsule"},
+                {"path": "/create", "method": "POST", "description": "Create a new roadmap"},
+                {"path": "/roadmap/<roadmap_id>", "method": "GET", "description": "Retrieve a specific roadmap"},
                 {"path": "/quote", "method": "GET", "description": "Get a random inspirational quote"},
                 {"path": "/paths", "method": "GET", "description": "List available development paths"},
             ],
@@ -192,14 +192,14 @@ def get_paths():
     return jsonify(
         {
             "available_paths": list(DEV_PATHS.keys()),
-            "description": "These paths can be used in the 'interests' field when creating a time capsule",
+            "description": "These paths can be used in the 'interests' field when creating a roadmap",
         }
     )
 
 
 @app.route("/create", methods=["POST"])
 @require_api_key
-def create_time_capsule():
+def create_roadmap():
     data = request.json
 
     # Validate required fields
@@ -220,8 +220,8 @@ def create_time_capsule():
     except ValueError:
         return jsonify({"error": "Timeframe must be a number"}), 400
 
-    # Generate a unique ID for the time capsule
-    capsule_id = str(uuid.uuid4())
+    # Generate a unique ID for the roadmap
+    roadmap_id = str(uuid.uuid4())
 
     # Calculate milestone dates
     start_date = datetime.datetime.now()
@@ -252,9 +252,9 @@ def create_time_capsule():
     # Sort roadmap by date
     roadmap.sort(key=lambda x: x["target_date"])
 
-    # Create the time capsule
-    time_capsule = {
-        "id": capsule_id,
+    # Create the roadmap
+    time_roadmap = {
+        "id": roadmap_id,
         "name": data["name"],
         "email": data["email"],
         "interests": interests,
@@ -279,14 +279,14 @@ def create_time_capsule():
     }
 
     # Store in our simulated database
-    TIME_CAPSULES_DB[capsule_id] = time_capsule
+    ROADMAPS_DB[roadmap_id] = time_roadmap
 
     return jsonify(
         {
-            "message": "Time capsule created successfully",
-            "capsule_id": capsule_id,
+            "message": "Roadmap created successfully",
+            "roadmap_id": roadmap_id,
             "summary": {
-                "name": time_capsule["name"],
+                "name": time_roadmap["name"],
                 "timeframe": f"{timeframe} months",
                 "paths": interests,
                 "milestones_count": len(roadmap),
@@ -295,38 +295,38 @@ def create_time_capsule():
     )
 
 
-@app.route("/capsule/<capsule_id>", methods=["GET"])
-def get_time_capsule(capsule_id):
-    if capsule_id not in TIME_CAPSULES_DB:
-        return jsonify({"error": "Time capsule not found"}), 404
+@app.route("/roadmap/<roadmap_id>", methods=["GET"])
+def get_roadmap(roadmap_id):
+    if roadmap_id not in ROADMAPS_DB:
+        return jsonify({"error": "Roadmap not found"}), 404
 
-    return jsonify(TIME_CAPSULES_DB[capsule_id])
+    return jsonify(ROADMAPS_DB[roadmap_id])
 
 
-@app.route("/capsule/<capsule_id>/milestone/<int:milestone_index>", methods=["PUT"])
+@app.route("/roadmap/<roadmap_id>/milestone/<int:milestone_index>", methods=["PUT"])
 @require_api_key
-def update_milestone(capsule_id, milestone_index):
-    if capsule_id not in TIME_CAPSULES_DB:
-        return jsonify({"error": "Time capsule not found"}), 404
+def update_milestone(roadmap_id, milestone_index):
+    if roadmap_id not in ROADMAPS_DB:
+        return jsonify({"error": "Roadmap not found"}), 404
 
-    capsule = TIME_CAPSULES_DB[capsule_id]
+    roadmap = ROADMAPS_DB[roadmap_id]
 
-    if milestone_index >= len(capsule["roadmap"]) or milestone_index < 0:
+    if milestone_index >= len(roadmap["roadmap"]) or milestone_index < 0:
         return jsonify({"error": "Invalid milestone index"}), 400
 
     data = request.json
     if "completed" in data:
-        capsule["roadmap"][milestone_index]["completed"] = bool(data["completed"])
+        roadmap["roadmap"][milestone_index]["completed"] = bool(data["completed"])
 
         # Check if all milestones are completed
-        all_completed = all(milestone["completed"] for milestone in capsule["roadmap"])
+        all_completed = all(milestone["completed"] for milestone in roadmap["roadmap"])
 
         return jsonify(
             {
                 "message": "Milestone updated successfully",
-                "milestone": capsule["roadmap"][milestone_index],
+                "milestone": roadmap["roadmap"][milestone_index],
                 "all_completed": all_completed,
-                "progress": sum(1 for m in capsule["roadmap"] if m["completed"]) / len(capsule["roadmap"]) * 100,
+                "progress": sum(1 for m in roadmap["roadmap"] if m["completed"]) / len(roadmap["roadmap"]) * 100,
             }
         )
     else:

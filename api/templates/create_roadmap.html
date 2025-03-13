@@ -1,10 +1,10 @@
 {% extends "base.html" %}
 
-{% block title %}Create Time Capsule{% endblock %}
+{% block title %}Create Roadmap{% endblock %}
 
 {% block content %}
 <div class="container">
-    <h1 class="mb-4">Create Your Time Capsule</h1>
+    <h1 class="mb-4">Create Your Roadmap</h1>
     
     <div class="row">
         <div class="col-md-8">
@@ -13,7 +13,7 @@
                     <h5>Developer Roadmap Information</h5>
                 </div>
                 <div class="card-body">
-                    <form method="POST" action="{{ url_for('views.create_capsule') }}">
+                    <form method="POST" action="{{ url_for('views.create_roadmap') }}">
                         <div class="mb-3">
                             <label for="name" class="form-label">Your Name</label>
                             <input type="text" class="form-control" id="name" name="name" required>
