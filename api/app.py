@@ -3,13 +3,13 @@ import os
 import random
 import uuid
 
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, send_from_directory
 
 from api.views import bp as views_bp
 
 from .utils import DEV_PATHS, QUOTES, require_api_key
 
-app = Flask(__name__, template_folder="templates")
+app = Flask(__name__, template_folder="templates", static_folder="static")
 app.secret_key = os.environ.get("SECRET_KEY", "dev-secret-key")
 app.register_blueprint(views_bp)
 
@@ -183,3 +183,8 @@ def update_milestone(roadmap_id, milestone_index):
         )
     else:
         return jsonify({"error": "Missing 'completed' field in request body"}), 400
+
+
+@app.route("/favicon.ico")
+def favicon():
+    return send_from_directory(app.static_folder, "favicon.ico", mimetype="image/vnd.microsoft.icon")

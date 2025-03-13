@@ -15,6 +15,7 @@ package:
     - .gitignore
   include:
     - api/templates/**
+    - api/static/**
 custom:
  wsgi:
    app: api.app.app
