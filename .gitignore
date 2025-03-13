@@ -1,0 +1,21 @@
+# Node.js dependencies
+node_modules/
+package-lock.json
+
+# Python dependencies
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+venv/
+.env
+
+# Serverless Framework build artifacts
+.serverless/
+
+*.env
+
+# MacOS & Editor junk files
+.DS_Store
+.vscode/
+.idea/
