@@ -8,6 +8,14 @@ provider:
 plugins:
   - serverless-python-requirements
   - serverless-wsgi
+package:
+  exclude:
+    - node_modules/**
+    - tests/**
+    - .gitignore
+  include:
+    - api/templates/**
+    - api/static/**
 custom:
  wsgi:
    app: api.app.app

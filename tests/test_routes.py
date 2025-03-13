@@ -2,7 +2,7 @@ import json
 import os
 from unittest.mock import patch
 
-from api.app import DEV_PATHS, TIME_CAPSULES_DB
+from api.app import DEV_PATHS, ROADMAPS_DB
 
 
 class TestPublicEndpoints:
@@ -37,28 +37,28 @@ class TestPublicEndpoints:
             assert path in data["available_paths"]
 
 
-class TestTimeCapsuleCreation:
+class TestTimeroadmapCreation:
 
-    def test_create_time_capsule_success(self, client, sample_time_capsule_data):
+    def test_create_time_roadmap_success(self, client, sample_roadmap_data):
         custom_key = "custom-test-key"
         with patch.dict(os.environ, {"API_KEY": custom_key}):
             response = client.post(
                 "/create",
                 headers={"X-API-Key": custom_key, "Content-Type": "application/json"},
-                data=json.dumps(sample_time_capsule_data),
+                data=json.dumps(sample_roadmap_data),
             )
             data = json.loads(response.data)
 
             assert response.status_code == 200
-            assert "capsule_id" in data
+            assert "roadmap_id" in data
             assert "message" in data
             assert "summary" in data
-            assert data["summary"]["name"] == sample_time_capsule_data["name"]
-            assert data["summary"]["timeframe"] == f"{sample_time_capsule_data['timeframe']} months"
-            capsule_id = data["capsule_id"]
-            assert capsule_id in TIME_CAPSULES_DB
+            assert data["summary"]["name"] == sample_roadmap_data["name"]
+            assert data["summary"]["timeframe"] == f"{sample_roadmap_data['timeframe']} months"
+            roadmap_id = data["roadmap_id"]
+            assert roadmap_id in ROADMAPS_DB
 
-    def test_create_time_capsule_missing_fields(self, client):
+    def test_create_time_roadmap_missing_fields(self, client):
         custom_key = "custom-test-key"
         with patch.dict(os.environ, {"API_KEY": custom_key}):
             response = client.post(
@@ -67,7 +67,6 @@ class TestTimeCapsuleCreation:
                 data=json.dumps(
                     {
                         "name": "Test User",
-                        # Missing email, interests, timeframe
                     }
                 ),
             )
@@ -77,10 +76,10 @@ class TestTimeCapsuleCreation:
             assert "error" in data
             assert "required_fields" in data
 
-    def test_create_time_capsule_invalid_interests(self, client, sample_time_capsule_data):
+    def test_create_time_roadmap_invalid_interests(self, client, sample_roadmap_data):
         custom_key = "custom-test-key"
         with patch.dict(os.environ, {"API_KEY": custom_key}):
-            invalid_data = sample_time_capsule_data.copy()
+            invalid_data = sample_roadmap_data.copy()
             invalid_data["interests"] = ["invalid_path", "frontend"]
 
             response = client.post(
@@ -94,11 +93,11 @@ class TestTimeCapsuleCreation:
             assert "error" in data
             assert "available_paths" in data
 
-    def test_create_time_capsule_invalid_timeframe(self, client, sample_time_capsule_data):
+    def test_create_time_roadmap_invalid_timeframe(self, client, sample_roadmap_data):
         custom_key = "custom-test-key"
         with patch.dict(os.environ, {"API_KEY": custom_key}):
             # Test negative timeframe
-            negative_data = sample_time_capsule_data.copy()
+            negative_data = sample_roadmap_data.copy()
             negative_data["timeframe"] = -1
 
             response1 = client.post(
@@ -108,7 +107,7 @@ class TestTimeCapsuleCreation:
             )
 
             # Test too large timeframe
-            large_data = sample_time_capsule_data.copy()
+            large_data = sample_roadmap_data.copy()
             large_data["timeframe"] = 30
 
             response2 = client.post(
@@ -118,7 +117,7 @@ class TestTimeCapsuleCreation:
             )
 
             # Test non-numeric timeframe
-            string_data = sample_time_capsule_data.copy()
+            string_data = sample_roadmap_data.copy()
             string_data["timeframe"] = "six"
 
             response3 = client.post(
@@ -132,33 +131,32 @@ class TestTimeCapsuleCreation:
             assert response3.status_code == 400
 
 
-class TestTimeCapsuleRetrieval:
-    def test_get_time_capsule(self, client, sample_time_capsule_data):
+class TestTimeroadmapRetrieval:
+    def test_get_time_roadmap(self, client, sample_roadmap_data):
         custom_key = "custom-test-key"
         with patch.dict(os.environ, {"API_KEY": custom_key}):
             create_response = client.post(
                 "/create",
                 headers={"X-API-Key": custom_key, "Content-Type": "application/json"},
-                data=json.dumps(sample_time_capsule_data),
+                data=json.dumps(sample_roadmap_data),
             )
             create_data = json.loads(create_response.data)
-            capsule_id = create_data["capsule_id"]
+            roadmap_id = create_data["roadmap_id"]
 
             # Then retrieve it
-            response = client.get(f"/capsule/{capsule_id}", headers={"X-API-Key": custom_key})
+            response = client.get(f"/roadmap/{roadmap_id}", headers={"X-API-Key": custom_key})
             data = json.loads(response.data)
 
             assert response.status_code == 200
-            assert data["id"] == capsule_id
-            assert data["name"] == sample_time_capsule_data["name"]
-            assert data["email"] == sample_time_capsule_data["email"]
+            assert data["id"] == roadmap_id
+            assert data["name"] == sample_roadmap_data["name"]
             assert "roadmap" in data
             assert len(data["roadmap"]) > 0
 
-    def test_get_nonexistent_time_capsule(self, client):
+    def test_get_nonexistent_time_roadmap(self, client):
         custom_key = "custom-test-key"
         with patch.dict(os.environ, {"API_KEY": custom_key}):
-            response = client.get("/capsule/nonexistent-id", headers={"X-API-Key": custom_key})
+            response = client.get("/roadmap/nonexistent-id", headers={"X-API-Key": custom_key})
             data = json.loads(response.data)
 
             assert response.status_code == 404
@@ -166,20 +164,20 @@ class TestTimeCapsuleRetrieval:
 
 
 class TestMilestoneUpdates:
-    def test_update_milestone(self, client, sample_time_capsule_data):
+    def test_update_milestone(self, client, sample_roadmap_data):
         custom_key = "custom-test-key"
         with patch.dict(os.environ, {"API_KEY": custom_key}):
             create_response = client.post(
                 "/create",
                 headers={"X-API-Key": custom_key, "Content-Type": "application/json"},
-                data=json.dumps(sample_time_capsule_data),
+                data=json.dumps(sample_roadmap_data),
             )
             create_data = json.loads(create_response.data)
-            capsule_id = create_data["capsule_id"]
+            roadmap_id = create_data["roadmap_id"]
 
             # Then update the first milestone
             response = client.put(
-                f"/capsule/{capsule_id}/milestone/0",
+                f"/roadmap/{roadmap_id}/milestone/0",
                 headers={"X-API-Key": custom_key, "Content-Type": "application/json"},
                 data=json.dumps({"completed": True}),
             )
@@ -193,29 +191,29 @@ class TestMilestoneUpdates:
             assert data["progress"] > 0
 
             # Verify the update in the database
-            assert TIME_CAPSULES_DB[capsule_id]["roadmap"][0]["completed"] is True
+            assert ROADMAPS_DB[roadmap_id]["roadmap"][0]["completed"] is True
 
-    def test_update_invalid_milestone_index(self, client, sample_time_capsule_data):
+    def test_update_invalid_milestone_index(self, client, sample_roadmap_data):
         custom_key = "custom-test-key"
         with patch.dict(os.environ, {"API_KEY": custom_key}):
             create_response = client.post(
                 "/create",
                 headers={"X-API-Key": custom_key, "Content-Type": "application/json"},
-                data=json.dumps(sample_time_capsule_data),
+                data=json.dumps(sample_roadmap_data),
             )
             create_data = json.loads(create_response.data)
-            capsule_id = create_data["capsule_id"]
+            roadmap_id = create_data["roadmap_id"]
 
             # Try to update a milestone with a negative index
             response1 = client.put(
-                f"/capsule/{capsule_id}/milestone/-1",
+                f"/roadmap/{roadmap_id}/milestone/-1",
                 headers={"X-API-Key": custom_key, "Content-Type": "application/json"},
                 data=json.dumps({"completed": True}),
             )
 
             # Try to update a milestone with an out-of-bounds index
             response2 = client.put(
-                f"/capsule/{capsule_id}/milestone/999",
+                f"/roadmap/{roadmap_id}/milestone/999",
                 headers={"X-API-Key": custom_key, "Content-Type": "application/json"},
                 data=json.dumps({"completed": True}),
             )
@@ -223,20 +221,20 @@ class TestMilestoneUpdates:
             assert response1.status_code == 404
             assert response2.status_code == 400
 
-    def test_update_milestone_missing_field(self, client, sample_time_capsule_data):
+    def test_update_milestone_missing_field(self, client, sample_roadmap_data):
         custom_key = "custom-test-key"
         with patch.dict(os.environ, {"API_KEY": custom_key}):
             create_response = client.post(
                 "/create",
                 headers={"X-API-Key": custom_key, "Content-Type": "application/json"},
-                data=json.dumps(sample_time_capsule_data),
+                data=json.dumps(sample_roadmap_data),
             )
             create_data = json.loads(create_response.data)
-            capsule_id = create_data["capsule_id"]
+            roadmap_id = create_data["roadmap_id"]
 
             # Try to update a milestone without the required field
             response = client.put(
-                f"/capsule/{capsule_id}/milestone/0",
+                f"/roadmap/{roadmap_id}/milestone/0",
                 headers={"X-API-Key": custom_key, "Content-Type": "application/json"},
                 data=json.dumps({}),  # Missing 'completed' field
             )

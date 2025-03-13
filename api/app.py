@@ -1,178 +1,35 @@
 import datetime
+import os
 import random
 import uuid
 
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, send_from_directory
 
-from .utils import require_api_key
+from api.views import bp as views_bp
 
-app = Flask(__name__)
+from .utils import DEV_PATHS, QUOTES, require_api_key
+
+app = Flask(__name__, template_folder="templates", static_folder="static")
+app.secret_key = os.environ.get("SECRET_KEY", "dev-secret-key")
+app.register_blueprint(views_bp)
 
 # Simulated database
-TIME_CAPSULES_DB = {}
-
-# Development paths with associated resources, milestones and tips
-DEV_PATHS = {
-    "frontend": {
-        "resources": [
-            "MDN Web Docs for fundamentals",
-            "React official documentation",
-            "CSS Tricks for advanced styling",
-            "Frontend Masters courses",
-            "State of JS reports for trends",
-        ],
-        "milestones": [
-            "Build a responsive portfolio website",
-            "Create a dynamic web app with React",
-            "Implement animations and transitions",
-            "Master state management patterns",
-            "Build a progressive web app",
-        ],
-        "tips": [
-            "Focus on accessibility from day one",
-            "Learn browser dev tools deeply",
-            "Practice responsive design principles",
-            "Test on multiple browsers regularly",
-            "Study popular UI libraries' source code",
-        ],
-    },
-    "backend": {
-        "resources": [
-            "Official Python documentation",
-            "FastAPI or Flask documentation",
-            "Database design patterns book",
-            "API design guidelines",
-            "Systems Design primer",
-        ],
-        "milestones": [
-            "Build a RESTful API service",
-            "Implement user authentication",
-            "Create a data processing pipeline",
-            "Set up automated testing",
-            "Deploy microservices architecture",
-        ],
-        "tips": [
-            "Always validate user input",
-            "Use environment variables for configuration",
-            "Handle errors gracefully with clear messages",
-            "Design with scaling in mind",
-            "Document your APIs thoroughly",
-        ],
-    },
-    "devops": {
-        "resources": [
-            "AWS official documentation",
-            "Docker and Kubernetes guides",
-            "Terraform or CloudFormation tutorials",
-            "CI/CD pipeline examples",
-            "SRE books from Google",
-        ],
-        "milestones": [
-            "Automate deployment processes",
-            "Set up monitoring and alerting",
-            "Implement infrastructure as code",
-            "Create disaster recovery plans",
-            "Optimize for cost and performance",
-        ],
-        "tips": [
-            "Start with small, focused services",
-            "Practice chaos engineering",
-            "Prioritize security at every layer",
-            "Automate everything possible",
-            "Learn to interpret performance metrics",
-        ],
-    },
-    "mobile": {
-        "resources": [
-            "Flutter or React Native documentation",
-            "iOS/Android design guidelines",
-            "Mobile UX research articles",
-            "App store optimization guides",
-            "Mobile performance benchmarks",
-        ],
-        "milestones": [
-            "Create a basic app with navigation",
-            "Implement offline functionality",
-            "Add push notifications",
-            "Optimize battery usage",
-            "Release to app stores",
-        ],
-        "tips": [
-            "Test on real devices regularly",
-            "Focus on performance from the start",
-            "Design for different screen sizes",
-            "Consider accessibility features",
-            "Plan for app updates and maintenance",
-        ],
-    },
-    "ai": {
-        "resources": [
-            "Fast.ai courses",
-            "PyTorch or TensorFlow tutorials",
-            "Kaggle competitions",
-            "Research papers on arXiv",
-            "Hugging Face documentation",
-        ],
-        "milestones": [
-            "Implement a basic ML model",
-            "Build a data preprocessing pipeline",
-            "Train a model on custom data",
-            "Deploy a model to production",
-            "Create an AI-powered application",
-        ],
-        "tips": [
-            "Start with simple, well-understood models",
-            "Focus on data quality first",
-            "Keep track of all experiments",
-            "Consider ethical implications",
-            "Learn to explain your models to non-experts",
-        ],
-    },
-}
-
-# Inspirational quotes about learning and growth
-QUOTES = [
-    {
-        "text": "The best time to plant a tree was 20 years ago. The second best time is now.",
-        "author": "Chinese Proverb",
-    },
-    {"text": "Your future is created by what you do today, not tomorrow.", "author": "Robert Kiyosaki"},
-    {"text": "The expert in anything was once a beginner.", "author": "Helen Hayes"},
-    {"text": "The only way to learn programming is by writing code.", "author": "Richard Stallman"},
-    {
-        "text": "Don't worry about failure; worry about the chances you miss when you don't even try.",
-        "author": "Jack Canfield",
-    },
-    {
-        "text": "Learning is not attained by chance, it must be sought for with ardor and diligence.",
-        "author": "Abigail Adams",
-    },
-    {
-        "text": "The capacity to learn is a gift; the ability to learn is a skill; the willingness to learn is a choice.",
-        "author": "Brian Herbert",
-    },
-    {
-        "text": "Patience, persistence and perspiration make an unbeatable combination for success.",
-        "author": "Napoleon Hill",
-    },
-    {"text": "Every expert was once a beginner. Don't be afraid to take that first step.", "author": "Unknown"},
-    {"text": "The beautiful thing about learning is that nobody can take it away from you.", "author": "B.B. King"},
-]
+ROADMAPS_DB = {}
 
 
 @app.route("/", methods=["GET"])
 def home():
     return jsonify(
         {
-            "service": "Developer Time Capsule API",
+            "service": "Developer Roadmap API",
             "version": "1.0.0",
             "endpoints": [
-                {"path": "/create", "method": "POST", "description": "Create a new time capsule roadmap"},
-                {"path": "/capsule/<capsule_id>", "method": "GET", "description": "Retrieve a specific time capsule"},
+                {"path": "/create", "method": "POST", "description": "Create a new roadmap"},
+                {"path": "/roadmap/<roadmap_id>", "method": "GET", "description": "Retrieve a specific roadmap"},
                 {"path": "/quote", "method": "GET", "description": "Get a random inspirational quote"},
                 {"path": "/paths", "method": "GET", "description": "List available development paths"},
             ],
-            "usage": "Send a POST request to /create with name, email, interests (array), and timeframe (months)",
+            "usage": "Send a POST request to /create with name, interests (array), and timeframe (months)",
         }
     )
 
@@ -187,18 +44,18 @@ def get_paths():
     return jsonify(
         {
             "available_paths": list(DEV_PATHS.keys()),
-            "description": "These paths can be used in the 'interests' field when creating a time capsule",
+            "description": "These paths can be used in the 'interests' field when creating a roadmap",
         }
     )
 
 
 @app.route("/create", methods=["POST"])
 @require_api_key
-def create_time_capsule():
+def create_roadmap():
     data = request.json
 
     # Validate required fields
-    required_fields = ["name", "email", "interests", "timeframe"]
+    required_fields = ["name", "interests", "timeframe"]
     if not all(field in data for field in required_fields):
         return jsonify({"error": "Missing required fields", "required_fields": required_fields}), 400
 
@@ -215,8 +72,8 @@ def create_time_capsule():
     except ValueError:
         return jsonify({"error": "Timeframe must be a number"}), 400
 
-    # Generate a unique ID for the time capsule
-    capsule_id = str(uuid.uuid4())
+    # Generate a unique ID for the roadmap
+    roadmap_id = str(uuid.uuid4())
 
     # Calculate milestone dates
     start_date = datetime.datetime.now()
@@ -247,11 +104,10 @@ def create_time_capsule():
     # Sort roadmap by date
     roadmap.sort(key=lambda x: x["target_date"])
 
-    # Create the time capsule
-    time_capsule = {
-        "id": capsule_id,
+    # Create the roadmap
+    time_roadmap = {
+        "id": roadmap_id,
         "name": data["name"],
-        "email": data["email"],
         "interests": interests,
         "timeframe": timeframe,
         "created_at": start_date.strftime("%Y-%m-%d"),
@@ -274,14 +130,14 @@ def create_time_capsule():
     }
 
     # Store in our simulated database
-    TIME_CAPSULES_DB[capsule_id] = time_capsule
+    ROADMAPS_DB[roadmap_id] = time_roadmap
 
     return jsonify(
         {
-            "message": "Time capsule created successfully",
-            "capsule_id": capsule_id,
+            "message": "Roadmap created successfully",
+            "roadmap_id": roadmap_id,
             "summary": {
-                "name": time_capsule["name"],
+                "name": time_roadmap["name"],
                 "timeframe": f"{timeframe} months",
                 "paths": interests,
                 "milestones_count": len(roadmap),
@@ -290,39 +146,44 @@ def create_time_capsule():
     )
 
 
-@app.route("/capsule/<capsule_id>", methods=["GET"])
-def get_time_capsule(capsule_id):
-    if capsule_id not in TIME_CAPSULES_DB:
-        return jsonify({"error": "Time capsule not found"}), 404
+@app.route("/roadmap/<roadmap_id>", methods=["GET"])
+def get_roadmap(roadmap_id):
+    if roadmap_id not in ROADMAPS_DB:
+        return jsonify({"error": "Roadmap not found"}), 404
 
-    return jsonify(TIME_CAPSULES_DB[capsule_id])
+    return jsonify(ROADMAPS_DB[roadmap_id])
 
 
-@app.route("/capsule/<capsule_id>/milestone/<int:milestone_index>", methods=["PUT"])
+@app.route("/roadmap/<roadmap_id>/milestone/<int:milestone_index>", methods=["PUT"])
 @require_api_key
-def update_milestone(capsule_id, milestone_index):
-    if capsule_id not in TIME_CAPSULES_DB:
-        return jsonify({"error": "Time capsule not found"}), 404
+def update_milestone(roadmap_id, milestone_index):
+    if roadmap_id not in ROADMAPS_DB:
+        return jsonify({"error": "Roadmap not found"}), 404
 
-    capsule = TIME_CAPSULES_DB[capsule_id]
+    roadmap = ROADMAPS_DB[roadmap_id]
 
-    if milestone_index >= len(capsule["roadmap"]) or milestone_index < 0:
+    if milestone_index >= len(roadmap["roadmap"]) or milestone_index < 0:
         return jsonify({"error": "Invalid milestone index"}), 400
 
     data = request.json
     if "completed" in data:
-        capsule["roadmap"][milestone_index]["completed"] = bool(data["completed"])
+        roadmap["roadmap"][milestone_index]["completed"] = bool(data["completed"])
 
         # Check if all milestones are completed
-        all_completed = all(milestone["completed"] for milestone in capsule["roadmap"])
+        all_completed = all(milestone["completed"] for milestone in roadmap["roadmap"])
 
         return jsonify(
             {
                 "message": "Milestone updated successfully",
-                "milestone": capsule["roadmap"][milestone_index],
+                "milestone": roadmap["roadmap"][milestone_index],
                 "all_completed": all_completed,
-                "progress": sum(1 for m in capsule["roadmap"] if m["completed"]) / len(capsule["roadmap"]) * 100,
+                "progress": sum(1 for m in roadmap["roadmap"] if m["completed"]) / len(roadmap["roadmap"]) * 100,
             }
         )
     else:
         return jsonify({"error": "Missing 'completed' field in request body"}), 400
+
+
+@app.route("/favicon.ico")
+def favicon():
+    return send_from_directory(app.static_folder, "favicon.ico", mimetype="image/vnd.microsoft.icon")

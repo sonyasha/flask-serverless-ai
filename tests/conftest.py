@@ -16,6 +16,5 @@ def client():
 
 
 @pytest.fixture
-def sample_time_capsule_data():
-    """Return sample data for creating a time capsule."""
-    return {"name": "Test User", "email": "test@example.com", "interests": ["frontend", "backend"], "timeframe": 6}
+def sample_roadmap_data():
+    return {"name": "Test User", "interests": ["frontend", "backend"], "timeframe": 6}
