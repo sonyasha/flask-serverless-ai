@@ -1,6 +1,6 @@
 # This workflow will install Python dependencies, lint and run test suite
 
-name: DEV - Unittest
+name: Dev unittest
 
 on:
   push:

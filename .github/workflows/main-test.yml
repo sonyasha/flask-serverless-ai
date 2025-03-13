@@ -1,10 +1,10 @@
 # This workflow will install Python dependencies, lint and run test suite on pull request
 
-name: MAIN - Unittest
+name: Main unittest security check
 
 on:
-  push:
-    branches-ignore: [ main ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
   lint:
