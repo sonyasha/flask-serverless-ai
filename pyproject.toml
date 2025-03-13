@@ -1,0 +1,75 @@
+[tool.ruff]
+# Exclude a variety of commonly ignored directories.
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".git-rewrite",
+    ".hg",
+    ".ipynb_checkpoints",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pyenv",
+    ".pytest_cache",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    ".vscode",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "site-packages",
+    "venv",
+]
+line-length = 119
+target-version = "py312"
+
+
+[tool.ruff.format]
+# Like Black, use double quotes for strings.
+quote-style = "double"
+
+# Like Black, indent with spaces, rather than tabs.
+indent-style = "space"
+
+[tool.ruff.lint.flake8-quotes]
+docstring-quotes = "double"
+
+[tool.ruff.lint]
+# Enable pycodestyle (E), pyflakes (F), and bugbear (B) rules
+select = ["E", "F", "B"]
+ignore = ["E501"]
+
+
+[tool.black]
+line-length = 119
+target-version = ["py313"]
+
+
+[tool.isort]
+profile = "black"
+line_length = 119
+src_paths = ["."]
+skip = [
+  ".history",
+  ".hg",
+  ".mypy_cache",
+  ".tox",
+  ".venv",
+  "__pypackages__",
+  "_build",
+  "media",
+  "migrations",
+  "node_modules",
+  "buck-out",
+  "build",
+  "builds",
+  "dist",
+]
