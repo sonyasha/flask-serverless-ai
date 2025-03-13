@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}Developer Time Capsule - Home{% endblock %}
+
+{% block content %}
+<div class="header-container">
+    <div class="container">
+        <h1 class="display-4">Developer Time Capsule</h1>
+        <p class="lead">Create a personalized roadmap for your coding journey</p>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-8">
+            <h2>Map Your Development Journey</h2>
+            <p>Developer Time Capsule helps you create structured learning paths with realistic timelines, 
+               resources, and tips tailored to your interests.</p>
+            
+            <div class="quote-box">
+                <p class="mb-0">"{{ quote.text }}"</p>
+                <footer class="blockquote-footer mt-1">{{ quote.author }}</footer>
+            </div>
+            
+            <h3>Features</h3>
+            <ul>
+                <li>Create personalized development roadmaps based on your interests</li>
+                <li>Set realistic timeframes for skill acquisition</li>
+                <li>Track your progress with milestone completion</li>
+                <li>Get curated resources for each development path</li>
+                <li>Receive expert tips for effective learning</li>
+            </ul>
+            
+            <div class="d-grid gap-2 d-md-flex justify-content-md-start mt-4">
+                <a href="{{ url_for('views.create_capsule') }}" class="btn btn-primary me-md-2">Create Your Time Capsule</a>
+                <a href="{{ url_for('views.dashboard') }}" class="btn btn-outline-secondary">View Dashboard</a>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Available Learning Paths</h5>
+                </div>
+                <div class="card-body">
+                    <span class="badge bg-primary path-badge">Frontend</span>
+                    <span class="badge bg-success path-badge">Backend</span>
+                    <span class="badge bg-info path-badge">DevOps</span>
+                    <span class="badge bg-warning text-dark path-badge">Mobile</span>
+                    <span class="badge bg-danger path-badge">AI</span>
+                    
+                    <hr class="my-3">
+                    
+                    <p class="card-text">Each path includes curated resources, milestone projects, and expert tips to 
+                    guide you through your learning journey.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

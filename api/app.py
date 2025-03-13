@@ -1,12 +1,17 @@
 import datetime
+import os
 import random
 import uuid
 
 from flask import Flask, jsonify, request
 
+from api.views import bp as views_bp
+
 from .utils import require_api_key
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder="templates")
+app.secret_key = os.environ.get("SECRET_KEY", "dev-secret-key")
+app.register_blueprint(views_bp)
 
 # Simulated database
 TIME_CAPSULES_DB = {}
