@@ -12,11 +12,11 @@ def api_request(method, endpoint, data=None):
     url = f"{request.url_root}{endpoint}"
 
     if method.lower() == "get":
-        response = requests.get(url, headers=headers)
+        response = requests.get(url, headers=headers, timeout=5)
     elif method.lower() == "post":
-        response = requests.post(url, headers=headers, json=data)
+        response = requests.post(url, headers=headers, json=data, timeout=5)
     elif method.lower() == "put":
-        response = requests.put(url, headers=headers, json=data)
+        response = requests.put(url, headers=headers, json=data, timeout=5)
     else:
         raise ValueError(f"Unsupported method: {method}")
 
@@ -25,7 +25,7 @@ def api_request(method, endpoint, data=None):
 
 @bp.route("/home", methods=["GET"])
 def home():
-    quote_response = requests.get(f"{request.url_root}quote")
+    quote_response = requests.get(f"{request.url_root}quote", timeout=5)
     quote = quote_response.json() if quote_response.ok else {"text": "Loading failed", "author": "System"}
 
     return render_template("home.html", quote=quote)
@@ -33,10 +33,10 @@ def home():
 
 @bp.route("/dashboard", methods=["GET"])
 def dashboard():
-    quote_response = requests.get(f"{request.url_root}quote")
+    quote_response = requests.get(f"{request.url_root}quote", timeout=5)
     quote = quote_response.json() if quote_response.ok else {"text": "Loading failed", "author": "System"}
 
-    paths_response = requests.get(f"{request.url_root}paths")
+    paths_response = requests.get(f"{request.url_root}paths", timeout=5)
     paths = paths_response.json()["available_paths"] if paths_response.ok else []
 
     user_roadmaps = session.get("user_roadmaps", [])
@@ -49,7 +49,7 @@ def dashboard():
                 roadmaps_data.append(response.json())
         except Exception:
             # Log the error in a production app
-            pass
+            roadmaps_data = []
 
     return render_template("dashboard.html", quote=quote, paths=paths, roadmaps=roadmaps_data)
 
@@ -94,7 +94,7 @@ def create_roadmap():
 
         return redirect(url_for("views.create_roadmap"))
 
-    paths_response = requests.get(f"{request.url_root}paths")
+    paths_response = requests.get(f"{request.url_root}paths", timeout=5)
     paths = paths_response.json()["available_paths"] if paths_response.ok else []
 
     return render_template("create_roadmap.html", paths=paths)

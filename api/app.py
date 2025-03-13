@@ -1,6 +1,7 @@
 import datetime
 import os
 import random
+import secrets
 import uuid
 
 from flask import Flask, jsonify, request, send_from_directory
@@ -36,7 +37,7 @@ def home():
 
 @app.route("/quote", methods=["GET"])
 def get_random_quote():
-    return jsonify(random.choice(QUOTES))
+    return jsonify(secrets.choice(QUOTES))
 
 
 @app.route("/paths", methods=["GET"])
@@ -126,7 +127,7 @@ def create_roadmap():
                 (i, random.sample(DEV_PATHS[i]["tips"], min(2, len(DEV_PATHS[i]["tips"])))) for i in interests
             ]
         },
-        "quote": random.choice(QUOTES),
+        "quote": secrets.choice(QUOTES),
     }
 
     # Store in our simulated database
