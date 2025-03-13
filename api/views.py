@@ -9,7 +9,7 @@ bp = Blueprint("views", __name__, template_folder="templates")
 
 def api_request(method, endpoint, data=None):
     headers = {"X-API-Key": API_KEY, "Content-Type": "application/json"}
-    url = f"http://{request.host}/{endpoint}"
+    url = f"{request.url_root}{endpoint}"
 
     if method.lower() == "get":
         response = requests.get(url, headers=headers)
@@ -25,7 +25,7 @@ def api_request(method, endpoint, data=None):
 
 @bp.route("/home", methods=["GET"])
 def home():
-    quote_response = requests.get(f"http://{request.host}/quote")
+    quote_response = requests.get(f"{request.url_root}quote")
     quote = quote_response.json() if quote_response.ok else {"text": "Loading failed", "author": "System"}
 
     return render_template("home.html", quote=quote)
@@ -33,10 +33,10 @@ def home():
 
 @bp.route("/dashboard", methods=["GET"])
 def dashboard():
-    quote_response = requests.get(f"http://{request.host}/quote")
+    quote_response = requests.get(f"{request.url_root}quote")
     quote = quote_response.json() if quote_response.ok else {"text": "Loading failed", "author": "System"}
 
-    paths_response = requests.get(f"http://{request.host}/paths")
+    paths_response = requests.get(f"{request.url_root}paths")
     paths = paths_response.json()["available_paths"] if paths_response.ok else []
 
     user_roadmaps = session.get("user_roadmaps", [])
@@ -95,7 +95,7 @@ def create_roadmap():
 
         return redirect(url_for("views.create_roadmap"))
 
-    paths_response = requests.get(f"http://{request.host}/paths")
+    paths_response = requests.get(f"{request.url_root}paths")
     paths = paths_response.json()["available_paths"] if paths_response.ok else []
 
     return render_template("create_roadmap.html", paths=paths)
