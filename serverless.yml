@@ -1,10 +1,12 @@
-service: flask-serverless-ai
+service: flask-serverless-lambda
 
 provider:
   name: aws
   runtime: python3.13
-  region: us-east-1
+  region: us-west-1
   memorySize: 128
+  environment:
+    API_KEY: ${ssm:/flask-serverless-lambda/api-key}
 plugins:
 - serverless-python-requirements
 - serverless-wsgi
