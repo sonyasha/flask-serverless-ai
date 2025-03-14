@@ -1,13 +1,12 @@
 name: Deploy to AWS Lambda
 
 on:
-  push:
-    branches: [ main ]
   workflow_dispatch:
 
 
 env:
   AWS_REGION: "us-east-1"
+  SERVERLESS_ACCESS_KEY: ${{ secrets.SERVERLESS_ACCESS_KEY }}
 
 jobs:
   deploy:
@@ -26,14 +25,13 @@ jobs:
       with:
         node-version: '22'
 
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-        npm ci
-
     - name: Install Serverless Framework
       run: npm install -g serverless
+
+    - name: Install Serverless plugins
+      run: |
+        serverless plugin install -n serverless-wsgi
+        serverless plugin install -n serverless-python-requirements
 
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v4
