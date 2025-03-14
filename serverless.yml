@@ -25,7 +25,7 @@ custom:
     pythonRequirements:
       dockerizePip: true
   serverlessSsmFetch:
-    API_KEY: /aws/ssm/flask-serverless-lambda/api-key
+    API_KEY: /flask-serverless-lambda/api-key
 functions:
   app:
     handler: wsgi_handler.handler
