@@ -1,0 +1,10 @@
+__pycache__/
+.git/
+.serverless/
+.gitignore
+serverless.yml
+
+*.env
+
+.DS_Store
+.vscode/
