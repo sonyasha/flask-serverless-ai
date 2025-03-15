@@ -3,7 +3,7 @@ service: flask-serverless-lambda
 provider:
   name: aws
   runtime: python3.13
-  region: ${self:custom.serverlessSsmFetch.AWS_REGION}
+  region: us-west-1
   memorySize: 128
 plugins:
 - serverless-python-requirements
@@ -26,7 +26,6 @@ custom:
       dockerizePip: true
   serverlessSsmFetch:
     API_KEY: /flask-serverless-lambda/api-key
-    AWS_REGION: /flask-serverless-lambda/aws-region
 functions:
   app:
     handler: wsgi_handler.handler
