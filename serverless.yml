@@ -23,6 +23,7 @@ custom:
   wsgi:
     app: api.app.app
     pythonRequirements:
+      fileName: requirements/requirements.txt
       dockerizePip: true
   serverlessSsmFetch:
     API_KEY: /flask-serverless-lambda/api-key
