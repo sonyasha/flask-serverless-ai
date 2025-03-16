@@ -41,12 +41,8 @@ jobs:
 
     - name: Build Docker image
       run: docker compose build
-    - name: Start the container
-      run: docker compose up
-    - name: Run test suite
-      run: docker compose exec -T app pytest --cov=api tests/
-    - name: Stop and clean up containers
-      run: docker compose down
+    - name: Run tests inside the container
+      run: docker compose run --rm app pytest --cov=api tests/
 
   bandit-scan:
     if: github.ref == 'refs/heads/main'
