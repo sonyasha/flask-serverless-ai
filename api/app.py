@@ -6,9 +6,8 @@ import uuid
 
 from flask import Flask, jsonify, request, send_from_directory
 
+from api.utils import DEV_PATHS, QUOTES, require_api_key
 from api.views import bp as views_bp
-
-from .utils import DEV_PATHS, QUOTES, require_api_key
 
 app = Flask(__name__, template_folder="templates", static_folder="static")
 app.secret_key = os.environ.get("SECRET_KEY", "dev-secret-key")
@@ -188,3 +187,8 @@ def update_milestone(roadmap_id, milestone_index):
 @app.route("/favicon.ico")
 def favicon():
     return send_from_directory(app.static_folder, "favicon.ico", mimetype="image/vnd.microsoft.icon")
+
+
+if __name__ == "__main__":
+    debug_mode = os.environ.get("FLASK_DEBUG", "0") == "1"
+    app.run(debug=debug_mode, host="127.0.0.1", port=int(os.environ.get("PORT", 5000)))

@@ -1,13 +1,14 @@
-service: flask-serverless-ai
+service: flask-serverless-lambda
 
 provider:
   name: aws
   runtime: python3.13
-  region: us-east-1
+  region: us-west-1
   memorySize: 128
 plugins:
 - serverless-python-requirements
 - serverless-wsgi
+- serverless-ssm-fetch
 package:
   exclude:
   - node_modules/**
@@ -23,9 +24,13 @@ custom:
     app: api.app.app
     pythonRequirements:
       dockerizePip: true
+  serverlessSsmFetch:
+    API_KEY: /flask-serverless-lambda/api-key
 functions:
   app:
     handler: wsgi_handler.handler
+    environment:
+      FLASK_DEBUG: 0
     events:
     - http: ANY /
     - http: 'ANY {proxy+}'

@@ -1,0 +1,11 @@
+services:
+  app:
+    platform: linux/amd64
+    build: .
+    volumes:
+      - ./api:/app/api
+    ports:
+      - "${PORT}:${PORT}"
+    environment:
+      - API_KEY=${API_KEY}
+      - FLASK_DEBUG=1
