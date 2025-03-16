@@ -29,6 +29,8 @@ custom:
 functions:
   app:
     handler: wsgi_handler.handler
+    environment:
+      FLASK_DEBUG: 0
     events:
     - http: ANY /
     - http: 'ANY {proxy+}'
