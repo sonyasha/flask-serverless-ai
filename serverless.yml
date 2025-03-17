@@ -5,10 +5,11 @@ provider:
   runtime: python3.13
   region: ${env:AWS_REGION}
   memorySize: 128
+  environment:
+    API_KEY: ${env:API_KEY}
 plugins:
 - serverless-python-requirements
 - serverless-wsgi
-- serverless-ssm-fetch
 package:
   exclude:
   - node_modules/**
@@ -24,8 +25,6 @@ custom:
     app: api.app.app
     pythonRequirements:
       dockerizePip: true
-  serverlessSsmFetch:
-    API_KEY: /flask-serverless-lambda/api-key
 functions:
   app:
     handler: wsgi_handler.handler

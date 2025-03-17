@@ -18,7 +18,6 @@ RUN npm install -g serverless
 
 # Install Serverless plugins
 RUN serverless plugin install -n serverless-wsgi && \
-    serverless plugin install -n serverless-ssm-fetch && \
     serverless plugin install -n serverless-python-requirements
 
 COPY . /app

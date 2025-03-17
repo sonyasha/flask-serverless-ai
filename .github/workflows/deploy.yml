@@ -48,7 +48,6 @@ jobs:
     - name: Install Serverless plugins
       run: |
         serverless plugin install -n serverless-wsgi
-        serverless plugin install -n serverless-ssm-fetch
         serverless plugin install -n serverless-python-requirements
 
     - name: Configure AWS credentials
