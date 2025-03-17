@@ -6,6 +6,5 @@ services:
       - ./api:/app/api
     ports:
       - "${PORT}:${PORT}"
-    environment:
-      - API_KEY=${API_KEY}
-      - FLASK_DEBUG=1
+    env_file:
+      - .env
