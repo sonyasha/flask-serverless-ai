@@ -3,7 +3,7 @@ service: flask-serverless-lambda
 provider:
   name: aws
   runtime: python3.13
-  region: us-west-1
+  region: ${env:AWS_REGION}
   memorySize: 128
 plugins:
 - serverless-python-requirements
