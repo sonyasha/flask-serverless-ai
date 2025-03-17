@@ -9,3 +9,8 @@ services:
     environment:
       - API_KEY=${API_KEY}
       - FLASK_DEBUG=1
+      - AWS_REGION=${AWS_REGION}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - SERVERLESS_ACCESS_KEY=${SERVERLESS_ACCESS_KEY}
+      - PORT=${PORT}
